@@ -52,3 +52,16 @@ li {
     color: #f9f9f9;
 
 }
+
+.complete-btn {
+    background-color: lightgreen;
+    margin-right: 5px;
+}
+
+li.completed {
+    background: #d0f0d0;
+    /* Verde más tenue */
+    border-left: 6px solid #4CAF50;
+    /* Línea verde lateral */
+    transition: background 0.3s ease, border-left 0.3s ease;
+}

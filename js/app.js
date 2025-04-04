@@ -34,22 +34,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderTasks() {
         taskList.innerHTML = '';
-        tasks.forEach(
-            task => {
-                const li = document.createElement('li');
-                li.innerHTML =
-                    '<span>' + task.text + '</span>' +
-                    '<div>' +
-                    '<button class="edit-btn" onclick= "editTask(' + task.id + ')">' +
-                    'Editar </button>' +
-                    '<button class="delete-btn"onclick= "deleteTask(' + task.id + ')">' +
-                    'Eliminar </button>' +
-                    '</div>';
-                taskList.appendChild(li);
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.classList.toggle('completed', task.complete); // Agrega la clase solo si está completa
+
+            let buttons =
+                '<button class="complete-btn" onclick="completeTask(' + task.id + ')">' +
+                (task.complete ? 'Deshacer' : 'Completar') + '</button>';
+
+            if (!task.complete) {
+                buttons +=
+                    '<button class="edit-btn" onclick="editTask(' + task.id + ')">Editar</button>' +
+                    '<button class="delete-btn" onclick="deleteTask(' + task.id + ')">Eliminar</button>';
             }
 
-        );
+            li.innerHTML = '<span>' + task.text + '</span><div>' + buttons + '</div>';
+            taskList.appendChild(li);
+        });
     }
+
 
     window.deleteTask = function (id) {
         tasks = tasks.filter(task => task.id !== id);
@@ -64,5 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
             editingId = et.id;
         }
     }
+    window.completeTask = function (id) {
+        tasks = tasks.map(task =>
+            task.id === id ? { ...task, complete: !task.complete } : task
+        );
+        renderTasks();
+    };
+
 
 });
