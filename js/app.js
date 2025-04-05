@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     '<button class="text-red-600 hover:underline" onclick="deleteTask(' + task.id + ')">Eliminar</button>';
             }
 
-            li.innerHTML = '<span>' + task.text + '</span><div>' + buttons + '</div>';
+            li.innerHTML = '<span>' + task.text + '</span><div class="space-x-2">' + buttons + '</div>';
             taskList.appendChild(li);
         });
     }
