@@ -39,13 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
             li.classList.toggle('completed', task.complete); // Agrega la clase solo si está completa
 
             let buttons =
-                '<button class="complete-btn" onclick="completeTask(' + task.id + ')">' +
+                '<button class="text-green-600 hover:underline" onclick="completeTask(' + task.id + ')">' +
                 (task.complete ? 'Deshacer' : 'Completar') + '</button>';
 
             if (!task.complete) {
                 buttons +=
-                    '<button class="edit-btn" onclick="editTask(' + task.id + ')">Editar</button>' +
-                    '<button class="delete-btn" onclick="deleteTask(' + task.id + ')">Eliminar</button>';
+                    '<button class="text-blue-600 hover:underline" onclick="editTask(' + task.id + ')">Editar</button>' +
+                    '<button class="text-red-600 hover:underline" onclick="deleteTask(' + task.id + ')">Eliminar</button>';
             }
 
             li.innerHTML = '<span>' + task.text + '</span><div>' + buttons + '</div>';
