@@ -13,14 +13,40 @@
 <body>
     <main>
         <h1>Gestor de tareas</h1>
-        <div id="div-form">
-            <h2>Este es el formulario para crear tareas</h2>
-            <input type="text" id="task-input" placeholder="Escribe una tarea" required />
-            <button id="task-form">Agregar</button>
-        </div>
-        <form action="server/task/index.php" method="post">
-            <input type="text" name="title" id="title">
-            <input type="email" name="email" id="email" placeholder="jhon@mail.com">
+        <form action="server/task/create.php" method="post" class="my-form">
+            <label for="title" class="field">
+                <span>Title: </span>
+                <input type="text" name="title" placeholder="title" id="title" required />
+                <span class="req-field" style="color: red;">*</span>
+            </label>
+
+            <label for="description" class="field">
+                <span>Description: </span>
+                <input type="text" name="description" placeholder="description" id="description" />
+            </label>
+
+            <label for="due_date" class="field">
+                <span>Release date: </span>
+                <input type="date" name="due_date" placeholder="due_date" id="due_date" />
+            </label>
+
+            <label for="completed" class="field cbx-g">
+                <span>¿Is competed? </span>
+                <input !checked type="checkbox" name="completed" placeholder="completed" id="completed" />
+            </label>
+
+            <label for="user_id" class="field">
+                <span>User id: </span>
+                <input type="number" name="user_id" placeholder="user_id" id="user_id" required />
+                <span class="req-field" style="color: red;">*</span>
+            </label>
+
+            <label for="category_id" class="field">
+                <span>Category_id: </span>
+                <input type="number" name="category_id" placeholder="category_id" id="category_id" required />
+                <span class="req-field" style="color: red;">*</span>
+            </label>
+
             <button type="submit">Enviar</button>
         </form>
         <ul id="task-list">

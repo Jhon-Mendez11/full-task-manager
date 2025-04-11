@@ -65,3 +65,73 @@ li.completed {
     /* Línea verde lateral */
     transition: background 0.3s ease, border-left 0.3s ease;
 }
+
+.my-form {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background: #ffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    font-family: sans-serif;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    color: #333;
+
+}
+
+.field input[type="text"],
+.field input[type="date"],
+.field input[type="number"] {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.field input:invalid {
+    border-color: #dc3545;
+}
+
+.field input:valid {
+    border-color: #28a745;
+}
+
+.cbx-g {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cbx-g span {
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+}
+
+.my-form button {
+    background-color: #007bff;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.my-form button:hover {
+    background-color: #0056b3;
+}
+
+.req-field {
+    font-weight: bold;
+}
