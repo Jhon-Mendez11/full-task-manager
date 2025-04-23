@@ -1,11 +1,31 @@
 <?php
+require '../commons/db.php';
 
-echo "contenido que viajo por GET";
-echo "<br>>br>";
-var_dump($_GET);
-echo "<br>>br>";
-echo "contenido que viajo por POST";
-echo "<br>>br>";
-var_dump($_POST);
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    if (isset($_GET['user_id'])) {
+        try {
+            $user_id = $_GET['user_id'];
+            //var_dump($user_id);
+            $q = "SELECT * from task.task where user_id = :usr_id";
+            $stmt = $db->prepare($q);
+            $stmt->execute([
+                "usr_id" => $user_id
+            ]);
+            $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($tasks);
+            //var_dump($tasks);
+            //var_dump(json_encode($tasks));
+
+        } catch (PDOException $e) {
+            echo 'Error en la conexión' . $e->getMessage();
+            exit();
+        }
+
+    } else {
+        echo json_encode(["error" => "No param"]);
+    }
+} else {
+    echo json_encode(["error" => "Bad Request"]);
+}
 
 ?>
