@@ -47,10 +47,22 @@
                 <span class="req-field" style="color: red;">*</span>
             </label>
 
+            <input type="hidden" id="task-id" />
             <button type="submit">Enviar</button>
         </form>
-        <ul id="task-list">
-        </ul>
+        <ul id="task-list"></ul>
+
+        <!-- FORMULARIO PARA CREAR CATEGORÍA -->
+        <h2>Crear nueva categoría</h2>
+        <form class="my-form" id="category-form">
+            <input type="text" id="category-name" placeholder="Nombre de la categoría" required>
+            <input type="number" id="category-user-id">
+            <button type="submit">Crear categoría</button>
+        </form>
+
+        <ul id="category-list"></ul>
+
+
     </main>
 </body>
 

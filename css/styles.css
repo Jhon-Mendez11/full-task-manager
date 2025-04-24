@@ -56,6 +56,9 @@ li {
 .complete-btn {
     background-color: lightgreen;
     margin-right: 5px;
+    border-color: white;
+    border-radius: 5px;
+    padding: 5px;
 }
 
 li.completed {
