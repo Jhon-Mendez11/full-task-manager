@@ -19,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             echo json_encode($tasks); // ✅ Respuesta válida
 
         } catch (PDOException $e) {
-            // ⛔ Aquí estaba el problema: antes devolvías texto plano
             echo json_encode(["error" => "Error en la conexión: " . $e->getMessage()]);
             exit();
         }

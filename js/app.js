@@ -13,18 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let tasks = [];
 
     function renderTasks() {
-        console.log("Running");
-
         taskList.innerHTML = '';
 
         fetch('server/user/session_info.php')
             .then(res => res.json())
             .then(data => {
                 if (data.user_id) {
-                    console.log('Sesión activa para usuario:', data.user_id);
-
                     fetch('server/task/index.php?user_id=' + data.user_id)
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error al cargar las tareas');
+                            }
+                            return response.json();
+                        })
                         .then(tks => {
                             tasks = tks;
                             tks.forEach(task => {
@@ -33,9 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                                 let buttons = '';
 
-                                buttons += `<button class="complete-btn" onclick="completeTask(${task.id})">` +
-                                    (task.completed ? 'Deshacer' : 'Completar') +
-                                    `</button>`;
+                                buttons += `<button class="complete-btn" onclick="completeTask(${task.id})">${task.completed ? 'Deshacer' : 'Completar'}</button>`;
 
                                 if (!task.completed) {
                                     buttons += `<button class="edit-btn" onclick="editTask(${task.id})">Editar</button>`;
@@ -45,6 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 li.innerHTML = `<span>${task.title}</span><div>${buttons}</div>`;
                                 taskList.appendChild(li);
                             });
+                        })
+                        .catch(err => {
+                            console.error('Error al cargar tareas:', err);
+                            alert('Hubo un problema al cargar las tareas');
                         });
 
                     renderCategories(data.user_id);
@@ -52,66 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const categoryUserId = document.getElementById('category-user-id');
                     categoryUserId.value = data.user_id;
-
-                    const categoryForm = document.getElementById('category-form');
-                    const categoryName = document.getElementById('category-name');
-
-                    categoryForm.addEventListener('submit', function (e) {
-                        e.preventDefault();
-
-                        const postData = new URLSearchParams();
-                        postData.append('name', categoryName.value);
-                        postData.append('user_id', categoryUserId.value);
-
-                        fetch('server/category/create.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: postData.toString()
-                        })
-                            .then(res => res.json())
-                            .then(response => {
-                                if (response.status === 'ok') {
-                                    const uid = categoryUserId.value; // guardar antes de reset
-                                    categoryForm.reset();
-                                    renderCategories(uid);
-                                } else {
-                                    alert('Error al crear categoría: ' + response.error);
-                                }
-                            });
-                    });
-
                 } else {
-                    console.warn(data.error);
                     window.location.href = 'login.php';
                 }
             });
     }
 
     window.completeTask = function (id) {
-        console.log('Completando tarea con ID:', id);
         fetch('server/task/complete.php?id=' + id)
             .then(res => res.json())
             .then(data => {
-                console.log('Respuesta del servidor:', data);
                 if (data.status === 'ok') renderTasks();
-                else alert('Error al completar: ' + data.error);
-            })
-            .catch(err => console.error('Error al completar:', err));
-    };
-
-    window.toggleComplete = function (id, isCompleted) {
-        const url = isCompleted
-            ? 'server/task/undo.php'
-            : 'server/task/complete.php';
-
-        fetch(`${url}?id=${id}`)
-            .then(res => {
-                if (res.ok) renderTasks();
-                else alert('Error al cambiar el estado de la tarea');
-            })
-            .catch(err => {
-                console.error("Error en toggleComplete:", err);
-                alert('Error en la operación');
+                else alert('Error al completar');
             });
     };
 
@@ -124,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'ok') renderTasks();
-                else alert('Error al eliminar: ' + data.error);
+                else alert('Error al eliminar');
             });
     };
 
@@ -142,9 +97,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    window.editCategory = function (category) {
+        document.getElementById('category-name').value = category.name;
+        document.getElementById('category-id').value = category.id;
+        document.querySelector('#category-form button[type="submit"]').textContent = 'Guardar categoría';
+    };
+
+    window.deleteCategory = function (id) {
+        if (!confirm("¿Estás seguro de eliminar esta categoría?")) return;
+        fetch('server/category/delete.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + id
+        })
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'ok') renderTasks();
+                else alert('Error al eliminar categoría');
+            });
+    };
+
+    function renderCategories(userId) {
+        fetch('server/category/index.php?user_id=' + userId)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Error al cargar categorías');
+                }
+                return res.json();
+            })
+            .then(response => {
+                if (response.status !== 'ok') return;
+
+                const categories = response.data;
+                const list = document.getElementById('category-list');
+                list.innerHTML = '';
+
+                categories.forEach(cat => {
+                    const li = document.createElement('li');
+                    li.className = 'category-item';
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = cat.name;
+                    li.appendChild(nameSpan);
+
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'category-actions';
+
+                    const editBtn = document.createElement('button');
+                    editBtn.textContent = 'Editar';
+                    editBtn.className = 'edit-btn';
+                    editBtn.onclick = () => editCategory(cat);
+                    actionsDiv.appendChild(editBtn);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Eliminar';
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.onclick = () => deleteCategory(cat.id);
+                    actionsDiv.appendChild(deleteBtn);
+
+                    li.appendChild(actionsDiv);
+                    list.appendChild(li);
+                });
+            })
+            .catch(err => {
+                console.error('Error al cargar categorías:', err);
+                alert('Hubo un problema al cargar las categorías');
+            });
+    }
+
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-
         const postData = new URLSearchParams();
         postData.append('title', title.value);
         postData.append('description', description.value);
@@ -173,39 +195,58 @@ document.addEventListener('DOMContentLoaded', () => {
                     submitBtn.textContent = 'Enviar';
                     renderTasks();
                 } else {
-                    alert('Error al guardar: ' + response.error);
+                    alert('Error al guardar');
                 }
             });
     });
 
-    renderTasks();
+    const categoryForm = document.getElementById('category-form');
+    const categoryName = document.getElementById('category-name');
+    const categoryUserId = document.getElementById('category-user-id');
+    const categoryIdInput = document.getElementById('category-id');
+    const categorySubmitBtn = categoryForm.querySelector('button[type="submit"]');
 
-    function renderCategories(userId) {
-        console.log("Recibido en renderCategories:", userId);
+    categoryForm.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-        if (!userId || isNaN(userId)) {
-            console.error("userId inválido:", userId);
-            return;
+        const postData = new URLSearchParams();
+        postData.append('name', categoryName.value);
+        postData.append('user_id', categoryUserId.value);
+
+        let url = 'server/category/create.php';
+
+        if (categoryIdInput.value) {
+            postData.append('id', categoryIdInput.value);
+            url = 'server/category/update.php';
         }
 
-        fetch('server/category/index.php?user_id=' + userId)
-            .then(res => res.json())
-            .then(response => {
-                if (response.status !== 'ok' || !Array.isArray(response.data)) {
-                    console.error("Error: respuesta inesperada al obtener categorías:", response);
-                    return;
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: postData.toString()
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Error en la respuesta del servidor');
                 }
-
-                const categories = response.data;
-
-                const list = document.getElementById('category-list');
-                list.innerHTML = '';
-                categories.forEach(cat => {
-                    const li = document.createElement('li');
-                    li.textContent = cat.name;
-                    list.appendChild(li);
-                });
+                return res.json();
             })
-            .catch(err => console.error('Error al cargar categorías:', err));
-    }
+            .then(response => {
+                console.log('Respuesta del servidor:', response);
+                if (response.status === 'ok') {
+                    categoryForm.reset();
+                    categoryIdInput.value = '';
+                    categorySubmitBtn.textContent = 'Crear categoría';
+                    renderTasks();
+                } else {
+                    alert('Error al guardar la categoría');
+                }
+            })
+            .catch(error => {
+                console.error('Error al procesar la respuesta:', error);
+            });
+
+
+    });
+    renderTasks();
 });
